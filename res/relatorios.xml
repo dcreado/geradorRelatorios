@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<relatorios>
+  <config>
+       <driver>oracle.jdbc.driver.OracleDriver</driver>
+       <!-- PRODUCAO - ->
+       <usuario>GEES_APP</usuario>
+       <senha>GEES_APP</senha>
+       <url>jdbc:oracle:oci:@gees</url>
+       <smtpserver>172.28.0.40</smtpserver>
+        <!- -  DESENVOLVIMENTO -->
+       <usuario>GPM_DEV_013</usuario>
+       <senha>usuario</senha>
+       <url>jdbc:oracle:thin:@localhost:1521:orcl</url>
+       <smtpserver>localhost</smtpserver>
+       <!-- -->
+       <remetente>gestaoescolar-relatorios@prodest.es.gov.br</remetente>
+  </config>
+  <relatorio nome="Resumo_de_Inconsistencia"
+             subject="[ResumoInconsistencias] Relatorio de todas inconsistências do ultimo processamento - " 
+             formato="xls" 
+             agendamento="* * * * 0-7">
+      
+      <destinatarios>
+          <destinatario>creado@cpqd.com.br</destinatario>
+      </destinatarios>
+      <body>
+Olá,
+
+segue em anexo o relatório com inconsistências por escola existentes hoje.
+
+Qualquer coisa, entre em contato
+
+Domingos Creado
+			</body>
+			<tab nome="Quadro Geral" enviarSeVazio="false">
+				<consulta>
+select 
+ORGAO_REG_ENSINO.NOME,
+CE_MUNICIPIO.NOME as cidade,
+escola.CODIGO as codigo_inep, 
+sigla_escola.SIGLA || ' ' || pessoa_juridica.NOME as escola,
+inep_solicitacao.QTDE_INCONSISTENCIAS
+from 
+ORGAO_REG_ENSINO,
+pessoa_juridica, escola, sigla_escola, 
+CE_ENDERECO, CE_LOGRADOURO, CE_LOCALIDADE, CE_MUNICIPIO,
+inep_solicitacao ,
+(select inep_solicitacao.idpessoa_juridica,
+       inep_solicitacao.ano_referencia,
+       max(inep_solicitacao.dt_solicitacao) as dt_solicitacao
+  from inep_solicitacao
+ group by inep_solicitacao.idpessoa_juridica, inep_solicitacao.ano_referencia) tab 
+where
+ORGAO_REG_ENSINO.IDORGAO_REG_ENSINO = escola.IDORGAO_REG_ENSINO
+and escola.IDESCOLA = pessoa_juridica.IDPESSOA_JURIDICA
+and escola.IDSIGLA_ESCOLA = sigla_escola.IDSIGLA_ESCOLA
+and pessoa_juridica.IDENDERECO = CE_ENDERECO.IDENDERECO
+and CE_ENDERECO.IDLOGRADOURO = CE_LOGRADOURO.IDLOGRADOURO
+and CE_LOGRADOURO.IDLOCALIDADE = CE_LOCALIDADE.IDLOCALIDADE
+and CE_LOCALIDADE.IDMUNICIPIO = CE_MUNICIPIO.IDMUNICIPIO
+and inep_solicitacao.idpessoa_juridica = escola.IDESCOLA
+and inep_solicitacao.ano_referencia = 2011
+and inep_solicitacao.ativo = 1
+and inep_solicitacao.idpessoa_juridica = tab.idpessoa_juridica
+and inep_solicitacao.ano_referencia = tab.ano_referencia
+and inep_solicitacao.dt_solicitacao = tab.dt_solicitacao
+order by ORGAO_REG_ENSINO.NOME, CE_MUNICIPIO.NOME, sigla_escola.SIGLA || ' ' || pessoa_juridica.NOME
+				</consulta>
+			</tab>
+      <tab nome="Por tipo de inconsistência" enviarSeVazio="false">
+				<consulta>
+select 
+ORGAO_REG_ENSINO.NOME,
+CE_MUNICIPIO.NOME as cidade,
+escola.CODIGO as codigo_inep, 
+sigla_escola.SIGLA || ' ' || pessoa_juridica.NOME as escola,
+inep_tipo_inconsistencia.DESCRICAO, count(*)
+from 
+ORGAO_REG_ENSINO,
+pessoa_juridica, escola, sigla_escola, 
+CE_ENDERECO, CE_LOGRADOURO, CE_LOCALIDADE, CE_MUNICIPIO,
+inep_solicitacao ,
+inep_inconsistencia ,
+inep_tipo_inconsistencia ,
+(select inep_solicitacao.idpessoa_juridica,
+       inep_solicitacao.ano_referencia,
+       max(inep_solicitacao.dt_solicitacao) as dt_solicitacao
+  from inep_solicitacao
+ group by inep_solicitacao.idpessoa_juridica, inep_solicitacao.ano_referencia) tab 
+where
+ORGAO_REG_ENSINO.IDORGAO_REG_ENSINO = escola.IDORGAO_REG_ENSINO
+and escola.IDESCOLA = pessoa_juridica.IDPESSOA_JURIDICA
+and escola.IDSIGLA_ESCOLA = sigla_escola.IDSIGLA_ESCOLA
+and pessoa_juridica.IDENDERECO = CE_ENDERECO.IDENDERECO
+and CE_ENDERECO.IDLOGRADOURO = CE_LOGRADOURO.IDLOGRADOURO
+and CE_LOGRADOURO.IDLOCALIDADE = CE_LOCALIDADE.IDLOCALIDADE
+and CE_LOCALIDADE.IDMUNICIPIO = CE_MUNICIPIO.IDMUNICIPIO
+and inep_solicitacao.idpessoa_juridica = escola.IDESCOLA
+and inep_solicitacao.ano_referencia = 2011
+and inep_solicitacao.ativo = 1
+and inep_solicitacao.idsolicitacao = inep_inconsistencia.idsolicitacao
+and inep_inconsistencia.idtipo_inconsistencia = inep_tipo_inconsistencia.idtipo_inconsistencia
+and inep_solicitacao.idpessoa_juridica = tab.idpessoa_juridica
+and inep_solicitacao.ano_referencia = tab.ano_referencia
+and inep_solicitacao.dt_solicitacao = tab.dt_solicitacao
+group by ORGAO_REG_ENSINO.NOME, CE_MUNICIPIO.NOME, escola.CODIGO, sigla_escola.SIGLA || ' ' || pessoa_juridica.NOME, inep_tipo_inconsistencia.DESCRICAO
+order by ORGAO_REG_ENSINO.NOME, CE_MUNICIPIO.NOME, sigla_escola.SIGLA || ' ' || pessoa_juridica.NOME, inep_tipo_inconsistencia.DESCRICAO
+				</consulta>
+			</tab>
+			<tab  nome="Por tipo e campo" enviarSeVazio="true">
+				<consulta>
+select 
+ORGAO_REG_ENSINO.NOME,
+CE_MUNICIPIO.NOME as cidade,
+escola.CODIGO as codigo_inep, 
+sigla_escola.SIGLA || ' ' || pessoa_juridica.NOME as escola,
+inep_tipo_inconsistencia.DESCRICAO, 
+INEP_INCONSISTENCIA.DADO_INCONSISTENTE,
+count(*)
+from 
+ORGAO_REG_ENSINO,
+pessoa_juridica, escola, sigla_escola, 
+CE_ENDERECO, CE_LOGRADOURO, CE_LOCALIDADE, CE_MUNICIPIO,
+inep_solicitacao ,
+inep_inconsistencia ,
+inep_tipo_inconsistencia ,
+(select inep_solicitacao.idpessoa_juridica,
+       inep_solicitacao.ano_referencia,
+       max(inep_solicitacao.dt_solicitacao) as dt_solicitacao
+  from inep_solicitacao
+ group by inep_solicitacao.idpessoa_juridica, inep_solicitacao.ano_referencia) tab 
+where
+ORGAO_REG_ENSINO.IDORGAO_REG_ENSINO = escola.IDORGAO_REG_ENSINO
+and escola.IDESCOLA = pessoa_juridica.IDPESSOA_JURIDICA
+and escola.IDSIGLA_ESCOLA = sigla_escola.IDSIGLA_ESCOLA
+and pessoa_juridica.IDENDERECO = CE_ENDERECO.IDENDERECO
+and CE_ENDERECO.IDLOGRADOURO = CE_LOGRADOURO.IDLOGRADOURO
+and CE_LOGRADOURO.IDLOCALIDADE = CE_LOCALIDADE.IDLOCALIDADE
+and CE_LOCALIDADE.IDMUNICIPIO = CE_MUNICIPIO.IDMUNICIPIO
+and inep_solicitacao.idpessoa_juridica = escola.IDESCOLA
+and inep_solicitacao.ano_referencia = 2011
+and inep_solicitacao.ativo = 1
+and inep_solicitacao.idsolicitacao = inep_inconsistencia.idsolicitacao
+and inep_inconsistencia.idtipo_inconsistencia = inep_tipo_inconsistencia.idtipo_inconsistencia
+and inep_solicitacao.idpessoa_juridica = tab.idpessoa_juridica
+and inep_solicitacao.ano_referencia = tab.ano_referencia
+and inep_solicitacao.dt_solicitacao = tab.dt_solicitacao
+group by ORGAO_REG_ENSINO.NOME, CE_MUNICIPIO.NOME, escola.CODIGO, sigla_escola.SIGLA || ' ' || pessoa_juridica.NOME, 
+inep_tipo_inconsistencia.DESCRICAO, INEP_INCONSISTENCIA.DADO_INCONSISTENTE
+order by ORGAO_REG_ENSINO.NOME, CE_MUNICIPIO.NOME, sigla_escola.SIGLA || ' ' || pessoa_juridica.NOME, 
+inep_tipo_inconsistencia.DESCRICAO, INEP_INCONSISTENCIA.DADO_INCONSISTENTE					
+				</consulta>
+			</tab>
+  </relatorio>
+</relatorios>

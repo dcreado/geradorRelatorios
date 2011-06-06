@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<relatorios>
+  <config>
+       <!-- Aqui vao as configuracoes do ambiente de execucao -->
+       <driver>oracle.jdbc.driver.OracleDriver</driver> 
+             <!-- Driver JDBC para conectar no BD Oracle -->
+             <!-- Para conectar no postgresql, trocar driver -->
+       <usuario>GEES_APP</usuario> 
+             <!-- Usuario do banco -->
+       <senha>GEES_APP</senha> 
+             <!-- Senha do banco -->
+       <url>jdbc:oracle:oci:@gees</url> 
+             <!-- URL para conectar no banco (Copiar do ds.xml) -->
+       <smtpserver></smtpserver>  
+             <!-- Servidor de envio de email (ver com o suporte do cliente qual o ip do servidor SMTP) -->
+       <remetente>gestaoescolar-relatorios@prodest.es.gov.br</remetente> 
+             <!-- email que vai mandar os relatorios -->
+             <!-- essa versão não suporta ainda autenticação... 
+                  se for necessário, entre em contato para alterar a app -->
+  </config>
+  <!-- O xml pode ter vários relatorios
+      Aqui tem somente por simplicidade 
+      
+      Parametros:
+          nome: nome do arquivo a ser gerado, por precaução NÃO DEIXE BRANCOS 
+          subject: titulo do email. A aplicação SEMPRE coloca no final do titulo a data no formato dd/MM/yyyy
+          formato: formato do arquivo a ser enviado: por enquanto só suporta xls
+          agendamento: expressão crontab para indicar quando o relatório deve ser executado. 
+                       Documentacao da sintaxe:
+                               - http://en.wikipedia.org/wiki/Cron#Overview 
+                               - http://unixhelp.ed.ac.uk/CGI/man-cgi?crontab+5
+         
+         Como ainda não foi implementado o esquema de execução contínua, a aplicação precisa do agendador de tarefa do SO.
+         Assim o agendador de tarefa executará várias vezes no dia a aplicação e para saber em que momento que a aplicação 
+         deve rodar um relatório, ela usa a expressão crontab do agendamento. 
+         Como o agendamento não é preciso, não coloque expressões crontab com minutos, pois pode ser que o relatório nunca 
+         seja executado.
+          -->
+      
+  <relatorio nome="Relatorio_1"
+             subject="[ResumoInconsistencias] Relatorio de todas inconsistências do ultimo processamento - " 
+             formato="xls" 
+             agendamento="* * * * 0-7">
+      
+      <!-- Lista de emails para quem o relatório será enviado -->
+      <destinatarios>
+          <destinario>dest1@cpqd.com.br</destinario>
+          <destinario>dest2@cpqd.com.br</destinario>
+      </destinatarios>
+      
+      <!-- Corpo do email a ser enviado.... A apĺicação não faz nenhum processamento nela. -->
+      <body>
+Olá,
+
+Esse é o corpo do email de teste.
+
+Domingos Creado
+      </body>
+      <!-- tab a ser incluida...
+           No formato csv, pensei em ser um arquivo.
+           Parametros:
+               nome: nome da tab
+               enviarSeVazio: Se a consulta não retornar nada, deve ser enviado de qualquer jeito (valor true) ou não (valor false)
+            -->
+      <tab nome="Nome da Tab" enviarSeVazio="false">
+          <!-- consulta a ser executada.. 
+               atentar para NÃO COLOCAR comentarios no SQL!! -->
+          <consulta>select * from periodo_letivo where periodo_letivo like '201%'</consulta>
+      </tab>
+      <tab nome="Outra Tab">
+         <consulta>select * from periodo_letivo where periodo_letivo like '201%'</consulta>
+      </tab>
+  </relatorio>
+</relatorios>

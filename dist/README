@@ -1,0 +1,23 @@
+README
+
+INSTALACAO:
+
+1 - copiar para esse diretorio o driver jdbc para o diretorio local 
+
+2 - acertar o bat com o nome do driver e o caminho da aplicacao no bat (ou sh).
+
+3 - instalar no agendador de tarefa a aplicação.
+
+     # colocar a periodicidade para ser executada 1 vez ao dia.
+
+
+CONFIGURACAO:
+
+ver o arquivo res/relatorios_schema.xml com a descrição da configuração
+
+
+
+IDEIAS, SUGESTOES, CRITICAS ou DUVIDAS:
+
+creado@cpqd.com.br
+(27) 92020113

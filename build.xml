@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="dist" name="Create Runnable Jar for Project geradorRelatorios">
+
+	<path id="libs">
+		<fileset dir="${basedir}/lib" includes="*.jar">
+		</fileset>
+	</path>
+	<target name="compile">
+		<javac src="${basedir}/src" destdir="${basedir}/bin" source="1.5" target="1.5" classpathref="libs">
+		</javac>
+	</target>
+
+	<target name="create_run_jar">
+		<jar destfile="${basedir}/geradorRelatorios.jar" filesetmanifest="mergewithoutmain">
+			<manifest>
+				<attribute name="Main-Class" value="br.com.cpqd.gees.relatorios.Main" />
+				<attribute name="Class-Path" value="." />
+			</manifest>
+			<fileset dir="${basedir}/bin" />
+			<zipfileset excludes="META-INF/*.SF" src="${basedir}/lib/jxl.jar" />
+			<zipfileset excludes="META-INF/*.SF" src="${basedir}/lib/commons-beanutils-1.8.3.jar" />
+			<zipfileset excludes="META-INF/*.SF" src="${basedir}/lib/commons-collections-3.2.1.jar" />
+			<zipfileset excludes="META-INF/*.SF" src="${basedir}/lib/commons-digester-2.1.jar" />
+			<zipfileset excludes="META-INF/*.SF" src="${basedir}/lib/commons-logging-1.1.1.jar" />
+			<zipfileset excludes="META-INF/*.SF" src="${basedir}/lib/crontab-parser-1.0.0.jar" />
+			<zipfileset excludes="META-INF/*.SF" src="${basedir}/lib/activation.jar" />
+			<zipfileset excludes="META-INF/*.SF" src="${basedir}/lib/mail.jar" />
+		</jar>
+	</target>
+
+	<target name="dist" depends="clean, create_run_jar">
+		<zip destfile="${basedir}/geradorRelatorios.zip">
+			<fileset dir="${basedir}">
+				<include name="res/*" />
+			</fileset>
+			<fileset dir="${basedir}">
+				<include name="geradorRelatorios.jar" />
+			</fileset>
+			<fileset dir="${basedir}/dist">
+				<include name="*" />
+			</fileset>
+		</zip>
+	</target>
+
+	<target name="clean">
+		<delete file="${basedir}/geradorRelatorios.zip">
+		</delete>
+		<delete file="${basedir}/geradorRelatorios.jar">
+		</delete>
+		<delete dir="${basedir}/bin" includes="**/*">
+		</delete>
+	</target>
+</project>
